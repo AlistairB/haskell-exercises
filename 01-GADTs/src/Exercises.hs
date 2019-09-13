@@ -119,15 +119,18 @@ transformable2 = TransformWith (uncurry (++)) ("Hello,", " world!")
 -- | a. Which type variable is existential inside 'TransformableTo'? What is
 -- the only thing we can do to it?
 
+-- input is, it appears in the data constructor, but not in the type
+
 -- | b. Could we write an 'Eq' instance for 'TransformableTo'? What would we be
 -- able to check?
+
+-- yes, you can check the `input` is the same and `f input` = the same output
 
 -- | c. Could we write a 'Functor' instance for 'TransformableTo'? If so, write
 -- it. If not, why not?
 
-
-
-
+instance Functor TransformableTo where
+  fmap f (TransformWith fio i) = TransformWith (f . fio) i
 
 {- FOUR -}
 
