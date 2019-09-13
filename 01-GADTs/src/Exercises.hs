@@ -1,4 +1,5 @@
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE RankNTypes #-}
 module Exercises where
 
 
@@ -17,20 +18,26 @@ instance Countable Bool where count x = if x then 1 else 0
 -- things.
 
 data CountableList where
-  -- ...
+  CLNil :: CountableList
+  CLCons :: Countable a => a -> CountableList -> CountableList
 
 
 -- | b. Write a function that takes the sum of all members of a 'CountableList'
 -- once they have been 'count'ed.
 
 countList :: CountableList -> Int
-countList = error "Implement me!"
+countList CLNil = 0
+countList (CLCons a theRest) = count a + countList theRest
 
 
 -- | c. Write a function that removes all elements whose count is 0.
 
 dropZero :: CountableList -> CountableList
-dropZero = error "Implement me!"
+dropZero CLNil = CLNil
+dropZero (CLCons a theRest) =
+  if count a == 0
+  then           dropZero theRest
+  else CLCons a (dropZero theRest)
 
 
 -- | d. Can we write a function that removes all the things in the list of type
@@ -39,8 +46,7 @@ dropZero = error "Implement me!"
 filterInts :: CountableList -> CountableList
 filterInts = error "Contemplate me!"
 
-
-
+-- We can't because we can only pattern match on the data constructors which can only specify down to some `Countable a => a` thing
 
 
 {- TWO -}
@@ -48,24 +54,42 @@ filterInts = error "Contemplate me!"
 -- | a. Write a list that can take /any/ type, without any constraints.
 
 data AnyList where
-  -- ...
+  AnyListNil :: AnyList
+  AnyListCons :: a -> AnyList -> AnyList
 
 -- | b. How many of the following functions can we implement for an 'AnyList'?
 
 reverseAnyList :: AnyList -> AnyList
-reverseAnyList = undefined
+reverseAnyList = go AnyListNil
+  where
+    go :: AnyList -> AnyList -> AnyList
+    go acc AnyListNil         = acc
+    go acc (AnyListCons x xs) = go (AnyListCons x acc) xs
 
-filterAnyList :: (a -> Bool) -> AnyList -> AnyList
-filterAnyList = undefined
+-- not possible because type a is decidable by the caller (it is a rank 1 function)
+-- RankNTypes can be used to make a fully polymorphic a from within the function and it works
+
+filterAnyList :: (forall a. a -> Bool) -> AnyList -> AnyList
+filterAnyList _ AnyListNil         = AnyListNil
+filterAnyList f (AnyListCons x xs) =
+  if f x
+  then AnyListCons x (filterAnyList f xs)
+  else (filterAnyList f xs)
 
 lengthAnyList :: AnyList -> Int
-lengthAnyList = undefined
+lengthAnyList AnyListNil = 0
+lengthAnyList (AnyListCons _ xs) = 1 + lengthAnyList xs
+
+-- not possible, no way to know that the types are monoidal
 
 foldAnyList :: Monoid m => AnyList -> m
 foldAnyList = undefined
 
 isEmptyAnyList :: AnyList -> Bool
-isEmptyAnyList = undefined
+isEmptyAnyList AnyListNil = True
+isEmptyANyList _          = False
+
+-- no we can't know the types are showable
 
 instance Show AnyList where
   show = error "What about me?"
@@ -311,4 +335,3 @@ data TypeAlignedList a b where
 
 composeTALs :: TypeAlignedList b c -> TypeAlignedList a b -> TypeAlignedList a c
 composeTALs = error "Implement me, and then celebrate!"
-
