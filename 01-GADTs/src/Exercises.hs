@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE RankNTypes #-}
 module Exercises where
@@ -243,8 +245,6 @@ patternMatchMe = undefined
 -- no way to merge the types of the HLists in the type signature
 -- no way to to do the appending without knowing the length of each hlist ?
 
-
-
 {- SEVEN -}
 
 -- | Here are two data types that may help:
@@ -256,11 +256,15 @@ data Branch left centre right
 -- /tree/. None of the variables should be existential.
 
 data HTree a where
-  -- ...
+  HLeaf :: HTree Empty
+  HNode :: HTree l -> c -> HTree r -> HTree (Branch l c r)
 
 -- | b. Implement a function that deletes the left subtree. The type should be
 -- strong enough that GHC will do most of the work for you. Once you have it,
 -- try breaking the implementation - does it type-check? If not, why not?
+
+delLSubtree :: HTree (Branch l c r) -> HTree (Branch Empty c r)
+delLSubtree (HNode _ c r) = HNode HLeaf c r
 
 -- | c. Implement 'Eq' for 'HTree's. Note that you might have to write more
 -- than one to cover all possible HTrees. You might also need an extension or
@@ -268,9 +272,23 @@ data HTree a where
 -- Recursion is your friend here - you shouldn't need to add a constraint to
 -- the GADT!
 
+instance Eq (HTree Empty) where
+  _ == _ = True
+
+instance (Eq (HTree l), Eq c, Eq (HTree r)) => Eq (HTree (Branch l c r)) where
+  (HNode l c r) == (HNode l' c' r') =    l == l'
+                                      && c == c'
+                                      && r == r'
 
 
+tree1 :: HTree (Branch Empty Integer (Branch Empty Integer Empty))
+tree1 = HNode HLeaf 5 (HNode HLeaf 6 HLeaf)
 
+tree2 :: HTree (Branch Empty Integer (Branch Empty Integer Empty))
+tree2 = HNode HLeaf 5 (HNode HLeaf 6 HLeaf)
+
+test :: Bool
+test = tree1 == tree2
 
 {- EIGHT -}
 
