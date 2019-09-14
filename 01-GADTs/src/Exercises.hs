@@ -182,19 +182,28 @@ getInt (IntBox int _) = int
 -- pattern-match:
 
 getInt' :: MysteryBox String -> Int
-getInt' _doSomeCleverPatternMatching = error "Return that value"
+getInt' (StringBox _ (IntBox i _)) = i
 
 -- | b. Write the following function. Again, don't overthink it!
 
 countLayers :: MysteryBox a -> Int
-countLayers = error "Implement me"
+countLayers EmptyBox = 0
+countLayers (IntBox _ _) = 1
+countLayers (StringBox _ _) = 2
+countLayers (BoolBox _ _) = 3
 
 -- | c. Try to implement a function that removes one layer of "Box". For
 -- example, this should turn a BoolBox into a StringBox, and so on. What gets
 -- in our way? What would its type be?
 
+-- peel :: (forall a b. MysteryBox a -> MysteryBox b)
+-- peel EmptyBox = EmptyBox
+-- peel (IntBox _ box) = box
+-- peel (StringBox _ box) = box
+-- peel (BoolBox _ box) = box
 
-
+-- we can't write a type for this as different unwrappings result in different types for b
+-- we can only write b as polymorhpic, but it doesn't work for all b
 
 
 {- SIX -}
@@ -214,16 +223,25 @@ exampleHList = HCons "Tom" (HCons 25 (HCons True HNil))
 -- need to pattern-match on HNil, and therefore the return type shouldn't be
 -- wrapped in a 'Maybe'!
 
+hListHead :: HList (h, t) -> h
+hListHead (HCons h _) = h
+
 -- | b. Currently, the tuples are nested. Can you pattern-match on something of
 -- type @HList (Int, String, Bool, ())@? Which constructor would work?
 
 patternMatchMe :: HList (Int, String, Bool, ()) -> Int
 patternMatchMe = undefined
 
+-- No, we only have data constructors to make a `HList ()` or `HList (h, t)`
+
 -- | c. Can you write a function that appends one 'HList' to the end of
 -- another? What problems do you run into?
 
+-- append2HList :: HList (h, t) -> HList (h', t') -> HList ()
+-- append2HList (HCons h t) (HCons h' t') = HCons h
 
+-- no way to merge the types of the HLists in the type signature
+-- no way to to do the appending without knowing the length of each hlist ?
 
 
 
