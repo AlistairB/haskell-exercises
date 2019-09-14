@@ -142,15 +142,22 @@ data EqPair where
 -- | a. There's one (maybe two) useful function to write for 'EqPair'; what is
 -- it?
 
+isEqual :: EqPair -> Bool
+isEqual (EqPair a b) = a == b
+
+isNotEqual :: EqPair -> Bool
+isNotEqual (EqPair a b) = a /= b
+
 -- | b. How could we change the type so that @a@ is not existential? (Don't
 -- overthink it!)
+
+data EqPair' a where
+  EqPair' :: Eq a => a -> a -> EqPair' a
 
 -- | c. If we made the change that was suggested in (b), would we still need a
 -- GADT? Or could we now represent our type as an ADT?
 
-
-
-
+-- Yes, we still have no way to specify that the `a` must be `Eq`
 
 {- FIVE -}
 
