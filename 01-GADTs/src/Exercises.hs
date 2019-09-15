@@ -355,7 +355,11 @@ data Expr a where
 -- | a. Implement the following function and marvel at the typechecker:
 
 eval :: Expr a -> a
-eval = error "Implement me"
+eval (Equals (IntValue i) (IntValue i')) = i == i'
+eval (Add (IntValue i) (IntValue i')) = i + i'
+eval (If boolExpr exprA exprB) = if eval boolExpr then eval exprA else eval exprB
+eval (IntValue i) = i
+eval (BoolValue b) = b
 
 -- | b. Here's an "untyped" expression language. Implement a parser from this
 -- into our well-typed language. Note that (until we cover higher-rank
@@ -368,15 +372,34 @@ data DirtyExpr
   | DirtyIntValue  Int
   | DirtyBoolValue Bool
 
-parse :: DirtyExpr -> Maybe (Expr Int)
-parse = error "Implement me"
+data Typed where
+  IntType  :: Expr Int  -> Typed
+  BoolType :: Expr Bool -> Typed
+
+parse :: DirtyExpr -> Maybe Typed
+parse (DirtyEquals (DirtyIntValue i) (DirtyIntValue i')) = Just $ BoolType $ Equals (IntValue i) (IntValue i')
+parse (DirtyAdd (DirtyIntValue i) (DirtyIntValue i')) = Just $ IntType $ Add (IntValue i) (IntValue i')
+parse (DirtyIf (DirtyBoolValue b) dirtyExprA dirtyExprB) = parse $ if b then dirtyExprA else dirtyExprB
+parse (DirtyIntValue i) = Just $ IntType $ IntValue i
+parse (DirtyBoolValue b) = Just $ BoolType $ BoolValue b
+parse _ = Nothing
 
 -- | c. Can we add functions to our 'Expr' language? If not, why not? What
 -- other constructs would we need to add? Could we still avoid 'Maybe' in the
 -- 'eval' function?
 
+-- I don't think so, because there many combinations of `Expr a -> Expr a` that are not valid.
+-- You could also treat Expr like a functor applying some `a -> b` function, but again the result
+-- may not be a type `Expr` supports. I think you would need maybe. Although I'm slightly unsure of
+-- what the signature of function support would look like
+
+-- ok apparently this
 
 
+data MoreExpr a where
+-- ....
+  Function :: (a -> MoreExpr b) -> MoreExpr (a -> b)
+  Apply    :: MoreExpr (a -> b) -> MoreExpr a -> MoreExpr b
 
 
 {- TEN -}
