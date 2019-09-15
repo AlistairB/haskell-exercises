@@ -5,7 +5,7 @@
 module Exercises where
 
 
-
+import Data.Foldable (fold)
 
 
 {- ONE -}
@@ -301,25 +301,43 @@ test = tree1 == tree2
 -- @
 
 data AlternatingList a b where
-  -- ...
+  ANil :: AlternatingList a b
+  ACons :: a -> AlternatingList b a -> AlternatingList a b
+
+f :: AlternatingList Bool Int
+f = ACons True (ACons 1 (ACons False (ACons 2 ANil)))
 
 -- | b. Implement the following functions.
 
 getFirsts :: AlternatingList a b -> [a]
-getFirsts = error "Implement me!"
+getFirsts ANil = []
+getFirsts (ACons a rest) = a : getSeconds rest
 
 getSeconds :: AlternatingList a b -> [b]
-getSeconds = error "Implement me, too!"
+getSeconds ANil = []
+getSeconds (ACons _ rest) = getFirsts rest
 
 -- | c. One more for luck: write this one using the above two functions, and
 -- then write it such that it only does a single pass over the list.
 
 foldValues :: (Monoid a, Monoid b) => AlternatingList a b -> (a, b)
-foldValues = error "Implement me, three!"
+foldValues altList = (fold $ getFirsts altList, fold $ getSeconds altList)
 
+foldValues' :: (Monoid a, Monoid b) => AlternatingList a b -> (a, b)
+foldValues' = processA (mempty, mempty)
+  where
+    processA :: (Monoid a, Monoid b) => (a, b) -> AlternatingList a b -> (a, b)
+    processA final ANil = final
+    processA (a, b) (ACons a' list) = processB (a <> a', b) list
 
+    processB :: (Monoid a, Monoid b) => (a, b) -> AlternatingList b a -> (a, b)
+    processB final ANil = final
+    processB (a, b) (ACons b' list) = processA (a, b <> b') list
 
-
+foldValues'' :: (Monoid a, Monoid b) => AlternatingList a b -> (a, b)
+foldValues''  ANil        = (mempty, mempty)
+foldValues'' (ACons x xs) = let (b, a) = foldValues xs
+                            in  (x <> a, b)
 
 {- NINE -}
 
