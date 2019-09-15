@@ -413,12 +413,26 @@ data MoreExpr a where
 -- long as the input of one lines up with the output of the next.
 
 data TypeAlignedList a b where
-  -- ...
+  TANil :: TypeAlignedList a b
+  TACons :: (a -> b) -> TypeAlignedList b c -> TypeAlignedList a c
+
+
+nested :: TypeAlignedList Int Bool
+nested = TACons int2string (TACons string2bool TANil)
+
+int2string :: Int -> String
+int2string = undefined
+
+string2bool :: String -> Bool
+string2bool = undefined
 
 -- | b. Which types are existential?
+
+-- c?
 
 -- | c. Write a function to append type-aligned lists. This is almost certainly
 -- not as difficult as you'd initially think.
 
 composeTALs :: TypeAlignedList b c -> TypeAlignedList a b -> TypeAlignedList a c
-composeTALs = error "Implement me, and then celebrate!"
+composeTALs xs  TANil        = xs
+composeTALs xs (TACons y ys) = TACons y (composeTALs xs ys)
