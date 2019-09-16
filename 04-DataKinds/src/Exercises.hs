@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE DataKinds      #-}
 {-# LANGUAGE GADTs          #-}
 {-# LANGUAGE KindSignatures #-}
@@ -21,26 +22,25 @@ data IntegerMonoid = Sum | Product
 -- | a. Write a newtype around 'Integer' that lets us choose which instance we
 -- want.
 
-newtype IntegerSum = IntegerSum Integer
-newtype IntegerProduct = IntegerProduct Integer
+newtype IntegerWith (a :: IntegerMonoid) = IntegerWith Integer
 
 -- | b. Write the two monoid instances for 'Integer'.
 
-instance Semigroup IntegerSum where
-  (<>) (IntegerSum a) (IntegerSum b) = IntegerSum $ a + b
+instance Semigroup (IntegerWith 'Sum) where
+  (<>) (IntegerWith a) (IntegerWith b) = IntegerWith $ a + b
 
-instance Monoid IntegerSum where
-  mempty = IntegerSum 0
+instance Monoid (IntegerWith 'Sum) where
+  mempty = IntegerWith 0
 
-instance Semigroup IntegerProduct where
-  (<>) (IntegerProduct a) (IntegerProduct b) = IntegerProduct $ a * b
+instance Semigroup (IntegerWith 'Product) where
+  (<>) (IntegerWith a) (IntegerWith b) = IntegerWith $ a * b
 
-instance Monoid IntegerProduct where
-  mempty = IntegerProduct 1
+instance Monoid (IntegerWith 'Product) where
+  mempty = IntegerWith 1
 
 -- | c. Why do we need @FlexibleInstances@ to do this?
 
-
+-- Because 'Sum and 'Product are not polymorphic variables, but types
 
 
 
