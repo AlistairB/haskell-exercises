@@ -88,6 +88,9 @@ data Vector (length :: Natural) (a :: Type) where
   checker when we use GADTs:
 -}
 
+vec2 :: Vector ('Successor ('Successor 'Zero)) Integer
+vec2 = VCons 1 (VCons 2 VNil)
+
 head :: Vector ('Successor n) a -> a
 head (VCons head _) = head
 
