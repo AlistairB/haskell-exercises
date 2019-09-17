@@ -63,7 +63,7 @@ data Void -- No constructors!
 -- | c. Considering 'Maybe Void', and similar examples of kinds such as
 -- 'Either Void Bool', why do you think 'Void' might be a useful kind?
 
--- It acts as a unit type, giving us the option of including a type or not.
+-- It acts as a unit type, giving us the effective option of including a type or not.
 
 
 
@@ -78,14 +78,24 @@ data Void -- No constructors!
 data Nat = Z | S Nat
 
 data StringAndIntList (stringCount :: Nat) where
-  -- ...
+  SINil :: StringAndIntList 'Z
+  SIStringCons :: String -> StringAndIntList n -> StringAndIntList (S n)
+  SIIntCons :: Int -> StringAndIntList n -> StringAndIntList n
 
 -- | b. Update it to keep track of the count of strings /and/ integers.
 
+data StringAndIntList' (stringCount :: Nat) (intCount :: Nat) where
+  SINil' :: StringAndIntList' 'Z 'Z
+  SIStringCons' :: String -> StringAndIntList' s i -> StringAndIntList' (S n) i
+  SIIntCons' :: Int -> StringAndIntList' s i -> StringAndIntList' n (S i)
+
+
 -- | c. What would be the type of the 'head' function?
 
-
-
+sailHead :: StringAndIntList' s i -> Maybe (Either String Int)
+sailHead SINil' = Nothing
+sailHead (SIStringCons' s _) = Just $ Left s
+sailHead (SIIntCons' i _) = Just $ Right i
 
 
 {- FOUR -}
