@@ -143,8 +143,12 @@ data HList (types :: List Type) where
   HNil :: HList 'Nil
   HCons :: x -> HList xs -> HList ('Cons x xs)
 
+-- blah :: HList ('Cons x)
+
 -- | b. Write a well-typed, 'Maybe'-less implementation for the 'tail' function
 -- on 'HList'.
+
+
 
 -- | c. Could we write the 'take' function? What would its type be? What would
 -- get in our way?

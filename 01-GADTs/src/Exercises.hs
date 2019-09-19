@@ -228,6 +228,12 @@ exampleHList = HCons "Tom" (HCons 25 (HCons True HNil))
 hListHead :: HList (h, t) -> h
 hListHead (HCons h _) = h
 
+hListTail :: HList (h, t) -> HList t
+hListTail (HCons _ t) = t
+
+useTail :: HList (Int, (Bool, ()))
+useTail = hListTail exampleHList
+
 -- | b. Currently, the tuples are nested. Can you pattern-match on something of
 -- type @HList (Int, String, Bool, ())@? Which constructor would work?
 
@@ -413,7 +419,7 @@ data MoreExpr a where
 -- long as the input of one lines up with the output of the next.
 
 data TypeAlignedList a b where
-  TANil :: TypeAlignedList a b
+  TANil :: TypeAlignedList a a
   TACons :: (a -> b) -> TypeAlignedList b c -> TypeAlignedList a c
 
 
