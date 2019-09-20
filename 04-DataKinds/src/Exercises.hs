@@ -226,21 +226,32 @@ data SBool (value :: Bool) where
   SFalse :: SBool 'False
   STrue  :: SBool 'True
 
+sBoolTrue :: SBool 'True
+sBoolTrue = STrue
+
 -- | a. Write a singleton type for natural numbers:
 
 data SNat (value :: Nat) where
-  -- ...
+  SZ :: SNat 'Z
+  SS :: SNat n -> SNat ('S n)
 
 -- | b. Write a function that extracts a vector's length at the type level:
 
+-- data Vector (length :: Natural) (a :: Type) where
+--   VNil  :: Vector 'Zero a
+--   VCons :: a -> Vector n a -> Vector ('Successor n) a
+
 length :: Vector n a -> SNat n
-length = error "Implement me!"
+length VNil = SZ
+length (VCons a vec) = SS (Exercises.length vec)
 
 -- | c. Is 'Proxy' a singleton type?
 
 data Proxy a = Proxy
 
+-- No, because the /a/ may or may not be singleton.. ?
 
+-- Real answer, no because it has a polymorphic /a/..
 
 
 
