@@ -208,7 +208,7 @@ data BlogAction'' (who :: [Role]) where
   DeleteComment'' :: BlogAction'' '[ 'Admin, 'Moderator ]
 
 
--- Seems that `'` is optional in `'User`. I guess you automatically use the promoted data constructor
+-- Seems that `'` is| b. Write a well-typed optional in `'User`. I guess you automatically use the promoted data constructor
 -- in the type level list
 
 
@@ -297,14 +297,30 @@ myApp
 -- write to the file unless it's open. This exercise is a bit brain-bending;
 -- why? How could we make it more intuitive to write?
 
+data FileState
+  = Open
+  | Closed
+
+data Program' (fileState :: FileState) result where
+  OpenFile' :: Program' 'Open result -> Program' 'Closed result
+  WriteFile' :: String -> Program' 'Open result -> Program' 'Open result
+  ReadFile' :: (String -> Program' 'Open result) -> Program' 'Open result
+  CloseFile' :: Program' 'Closed result -> Program' 'Open result
+  Exit' :: result -> Program' 'Closed result
+
+myApp' :: Program' 'Closed Bool
+myApp'
+  = OpenFile' $ WriteFile' "HEY" $ (ReadFile' $ \contents ->
+      if contents == "WHAT"
+        then WriteFile' "... bug?" $ CloseFile' $ Exit' False
+                              -- fix ^
+        else CloseFile'            $ Exit' True)
+
 -- | EXTRA: write an interpreter for this program. Nothing to do with data
 -- kinds, but a nice little problem.
 
-interpret :: Program {- ??? -} a -> IO a
+interpret :: Program' fs a -> IO a
 interpret = error "Implement me?"
-
-
-
 
 
 {- NINE -}
