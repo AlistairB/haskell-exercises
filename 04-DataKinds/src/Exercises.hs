@@ -339,7 +339,18 @@ data Vector (n :: Nat) (a :: Type) where
 -- into Z and S cases. That's all the hint you need :)
 
 data SmallerThan (limit :: Nat) where
-  -- ...
+  SmallerThanZ :: SmallerThan ('S any)
+
+  SmallerThanS :: SmallerThan any -> SmallerThan ('S any)
+
+blah :: SmallerThan ('S ('S 'Z))
+blah = SmallerThanZ
+
+blah2 :: SmallerThan ('S ('S 'Z))
+blah2 = SmallerThanS SmallerThanZ
+
+-- blah3 :: SmallerThan ('S ('S 'Z))
+-- blah3 = SmallerThanS (SmallerThanS SmallerThanZ)
 
 -- | b. Write the '(!!)' function:
 
