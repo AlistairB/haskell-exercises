@@ -357,4 +357,7 @@ blah2 = SmallerThanS SmallerThanZ
 (!!) :: Vector n a -> SmallerThan n -> a
 (!!) = error "Implement me!"
 
+zomg :: Char
+zomg = (Exercises.!!) (VCons 'a' VNil) SmallerThanZ
+
 -- | c. Write a function that converts a @SmallerThan n@ into a 'Nat'.
