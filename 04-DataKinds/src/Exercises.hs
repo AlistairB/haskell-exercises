@@ -352,12 +352,20 @@ blah2 = SmallerThanS SmallerThanZ
 -- blah3 :: SmallerThan ('S ('S 'Z))
 -- blah3 = SmallerThanS (SmallerThanS SmallerThanZ)
 
+-- blah4 :: SmallerThan 'Z
+-- blah4 = SmallerThanZ
+
 -- | b. Write the '(!!)' function:
 
 (!!) :: Vector n a -> SmallerThan n -> a
-(!!) = error "Implement me!"
+(!!) (VCons a _) SmallerThanZ = a
+(!!) (VCons _ rest) (SmallerThanS any) = (Exercises.!!) rest any
 
 zomg :: Char
 zomg = (Exercises.!!) (VCons 'a' VNil) SmallerThanZ
 
 -- | c. Write a function that converts a @SmallerThan n@ into a 'Nat'.
+
+toNat :: SmallerThan n -> Nat
+toNat SmallerThanZ = S Z
+toNat (SmallerThanS any) = S (toNat any)
