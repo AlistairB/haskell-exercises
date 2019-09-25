@@ -20,15 +20,24 @@ data Exlistential where
 
 -- | a. Write a function to "unpack" this exlistential into a list.
 
--- unpackExlistential :: Exlistential -> (forall a. a -> r) -> [r]
--- unpackExlistential = error "Implement me!"
+-- unpackEx :: Exlistential -> [a]
+-- unpackEx Nil = []
+-- unpackEx (Cons a rest) = a : (unpackEx rest)
+
+unpackExlistential :: Exlistential -> (forall a. a -> r) -> [r]
+unpackExlistential Nil _ = []
+unpackExlistential (Cons a rest) f = f a : unpackExlistential rest f
 
 -- | b. Regardless of which type @r@ actually is, what can we say about the
--- values in the resulting list?
+-- values in the resulting list
+
+-- that the caller cannot care what type @r@ actually is
+
+-- MISSED - they are all of the same type. The function can't care about them so must just return it
 
 -- | c. How do we "get back" knowledge about what's in the list? Can we?
 
-
+-- I don't think we can
 
 
 
