@@ -79,16 +79,34 @@ data EqPair where
 -- | a. Write a function that "unpacks" an 'EqPair' by applying a user-supplied
 -- function to its pair of values in the existential type.
 
+unpackEqPair :: (forall a. Eq a => a -> a -> r) -> EqPair -> r
+unpackEqPair f (EqPair a a') = f a a'
+
 -- | b. Write a function that takes a list of 'EqPair's and filters it
 -- according to some predicate on the unpacked values.
+
+filterEqPair :: (forall a. Eq a => a -> a -> Bool) -> [EqPair] -> [EqPair]
+filterEqPair _ [] = []
+filterEqPair f (x@(EqPair a a'):xs) =
+  if f a a' then
+    x : (filterEqPair f xs)
+  else
+    filterEqPair f xs
+
+-- filter :: (forall a. Eq a => a -> a -> Bool) -> [EqPair] -> [EqPair]
+-- filter f = Prelude.filter (unpackEqPair f)
 
 -- | c. Write a function that unpacks /two/ 'EqPair's. Now that both our
 -- variables are in rank-2 position, can we compare values from different
 -- pairs?
 
+-- No, we only have information on the @a@ not the @r@, which the caller controls
+-- so we cannot inspect or use this in any meaningful way.
 
+unpack2EqPair :: (forall a. Eq a => a -> a -> r) -> EqPair -> EqPair -> (r, r)
+unpack2EqPair f (EqPair a a') (EqPair b b') = (f a a', f b b')
 
-
+-- hmm the answers has something like the above, but any polymorphic variable can be embedded in something
 
 {- FOUR -}
 
