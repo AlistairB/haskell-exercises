@@ -244,6 +244,7 @@ constructor ma       = unwrap ma $ \case
 -- | When we talked about @DataKinds@, we briefly looked at the 'SNat' type:
 
 data Nat = Z | S Nat
+  deriving Show
 
 data SNat (n :: Nat) where
   SZ :: SNat 'Z
@@ -287,3 +288,12 @@ data Vector (n :: Nat) (a :: Type) where
 -- | It would be nice to have a 'filter' function for vectors, but there's a
 -- problem: we don't know at compile time what the new length of our vector
 -- will be... but has that ever stopped us? Make it so!
+
+
+filterVec :: (a -> Bool) -> (forall m. Vector m a -> r) -> Vector n a -> r
+filterVec _ f VNil = f VNil
+filterVec fb f (VCons x xs) =
+  if fb x then
+    filterVec fb (f . VCons x) xs
+  else
+    filterVec fb f xs
