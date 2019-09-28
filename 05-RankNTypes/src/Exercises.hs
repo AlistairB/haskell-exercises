@@ -2,6 +2,7 @@
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE GADTs          #-}
 {-# LANGUAGE RankNTypes     #-}
+{-# LANGUAGE LambdaCase     #-}
 module Exercises where
 
 import Data.Kind (Type)
@@ -89,7 +90,7 @@ filterEqPair :: (forall a. Eq a => a -> a -> Bool) -> [EqPair] -> [EqPair]
 filterEqPair _ [] = []
 filterEqPair f (x@(EqPair a a'):xs) =
   if f a a' then
-    x : (filterEqPair f xs)
+    x : filterEqPair f xs
   else
     filterEqPair f xs
 
@@ -215,13 +216,27 @@ data MysteryBox a where
 -- | a. Knowing what we now know about RankNTypes, we can write an 'unwrap'
 -- function! Write the function, and don't be too upset if we need a 'Maybe'.
 
+unwrap :: MysteryBox a -> (forall a. MysteryBox a -> r) -> Maybe r
+unwrap  EmptyBox        f = Nothing
+unwrap (IntBox    _ xs) f = Just (f xs)
+unwrap (StringBox _ xs) f = Just (f xs)
+unwrap (BoolBox   _ xs) f = Just (f xs)
+
 -- | b. Why do we need a 'Maybe'? What can we still not know?
+
+-- Even though we can just write `f mb` without pattern matching, there is no actual way to get an `r`
+-- from an empty box, therefore the function must be partial, so we need the maybe layer to differently handle
+-- an empty box.
 
 -- | c. Write a function that uses 'unwrap' to print the name of the next
 -- layer's constructor.
 
-
-
+constructor :: MysteryBox a -> Maybe String
+constructor EmptyBox = Just "No more layers"
+constructor ma       = unwrap ma $ \case
+                              (IntBox _ _) -> "EmptyBox"
+                              (StringBox _ _) -> "IntBox"
+                              (BoolBox _ _) -> "StringBox"
 
 
 {- SEVEN -}
