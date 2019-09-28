@@ -130,13 +130,29 @@ data Nested input output subinput suboutput
 -- | a. Write a GADT to existentialise @subinput@ and @suboutput@.
 
 data NestedX input output where
-  -- ...
+  NestL :: Nested input output subinput suboutput -> NestedX input output
 
 -- | b. Write a function to "unpack" a NestedX. The user is going to have to
 -- deal with all possible @subinput@ and @suboutput@ types.
 
+unpackNestedX :: (forall si so. Nested i o si so -> r) -> NestedX i o -> r
+unpackNestedX f (NestL nested) = f nested
+
+-- I don't really get this one. Unpacking to a polymorphic @r@ doesn't seem useful
+-- or specific to this type.
+
 -- | c. Why might we want to existentialise the subtypes away? What do we lose
 -- by doing so? What do we gain?
+
+-- We can nest a component in a component without caring about the types?
+-- We can use the thing more flexibly, but once constructed we can manipulate it less
+
+-- From the answers:
+-- If we can get from our parent input to the child input, and from the child
+-- output to the parent output, do we really care about the child inputs and
+-- outputs? Probably not - by existentialising them, we don't have to keep
+-- track of them in types.
+
 
 -- In case you're interested in where this actually turned up in the code:
 -- https://github.com/i-am-tom/purescript-panda/blob/master/src/Panda/Internal/Types.purs#L84
