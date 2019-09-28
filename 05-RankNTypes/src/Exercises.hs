@@ -176,26 +176,31 @@ data FirstGo input output
 -- a 'Maybe'! Let's avoid this by splitting this sum type into separate types:
 
 data Text = Text String
--- data HTML = HTML { properties :: (String, String), children :: ??? }
+data HTML = HTML { properties :: (String, String), children :: [RenderableNode] }
 
 -- | Uh oh! What's the type of our children? It could be either! In fact, it
 -- could probably be anything that implements the following class, allowing us
 -- to render our DSL to an HTML string:
-class Renderable component where render :: component -> String
+class Renderable component where
+  render :: component -> String
 
 -- | a. Write a type for the children.
 
+data RenderableNode where
+  RenderableNode :: Renderable c => c -> RenderableNode
+
 -- | b. What I'd really like to do when rendering is 'fmap' over the children
 -- with 'render'; what's stopping me? Fix it!
+
+instance Renderable RenderableNode where
+  render (RenderableNode c) = render c
 
 -- | c. Now that we're an established Haskell shop, we would /also/ like the
 -- option to render our HTML to a Shakespeare template to write to a file
 -- (http://hackage.haskell.org/package/shakespeare). How could we support this
 -- new requirement with minimal code changes?
 
-
-
-
+-- add another function to @Renderable@ typeclass
 
 {- SIX -}
 
