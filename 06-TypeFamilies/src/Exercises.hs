@@ -135,6 +135,11 @@ type family Insert' (o :: Ordering) (x :: Nat) (xs :: Tree) :: Tree where
   Insert' 'GT x ('Node l c r) = 'Node l c (Insert x r)
   Insert' 'EQ x  xs           =  xs
 
+data (x :: Tree) :~: (y :: Tree) where
+  Refl :: x :~: x
+
+deleteTest2 :: Insert 'Z (Insert 'Z 'Empty) :~: Insert 'Z 'Empty
+deleteTest2 = Refl
 
 
 {- SIX -}
@@ -156,7 +161,13 @@ data HList (xs :: [Type]) where
 
 -- | Write a function that appends two 'HList's.
 
+type family (xs :: [Type]) ++ (ys :: [Type]) :: [Type] where
+  '[] ++ ys = ys
+  (x ': xs) ++ ys = x ': (xs ++ ys)
 
+appendHList :: HList xs -> HList ys -> HList (xs ++ ys)
+appendHList HNil ys = ys
+appendHList (HCons x xs) ys = HCons x (appendHList xs ys)
 
 
 
