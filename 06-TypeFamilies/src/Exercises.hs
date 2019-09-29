@@ -75,13 +75,23 @@ flatMap (VCons x xs) f = appendVec (f x) (flatMap xs f)
 
 -- | a. More boolean fun! Write the type-level @&&@ function for booleans.
 
+type family (x :: Bool) && (y :: Bool) :: Bool where
+  'True && 'True  = 'True
+  _     && _      = 'False
+
 -- | b. Write the type-level @||@ function for booleans.
+
+type family (x :: Bool) || (y :: Bool) :: Bool where
+  'True || _  = 'True
+  _ || 'True  = 'True
+  _ || _      = 'False
 
 -- | c. Write an 'All' function that returns @'True@ if all the values in a
 -- type-level list of boleans are @'True@.
 
-
-
+type family All (x :: [ Bool ]) :: Bool where
+  All '[]       = 'True
+  All (x ': xs) = x && All xs
 
 
 {- FOUR -}
