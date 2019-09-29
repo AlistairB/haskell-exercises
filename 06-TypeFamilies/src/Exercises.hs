@@ -31,9 +31,8 @@ type family (x :: Nat) + (y :: Nat) :: Nat where
 -- extension are you being told to enable? Why?
 
 type family (x :: Nat) ** (y :: Nat) :: Nat where
-  'Z     ** _  = 'Z
-  _      ** 'Z = 'Z
-  x ** ('S y) = x + (x ** y)
+  'Z   ** y = 'Z
+  'S x ** y =  y + (x ** y)
 
 data SNat (value :: Nat) where
   SZ :: SNat 'Z
@@ -56,14 +55,17 @@ data Vector (count :: Nat) (a :: Type) where
 -- | a. Write a function that appends two vectors together. What would the size
 -- of the result be?
 
--- append :: Vector m a -> Vector n a -> Vector ??? a
+appendVec :: Vector n a -> Vector m a -> Vector (n + m) a
+appendVec VNil ys = ys
+appendVec (VCons x xs) ys = VCons x (appendVec xs ys)
 
 -- | b. Write a 'flatMap' function that takes a @Vector n a@, and a function
 -- @a -> Vector m b@, and produces a list that is the concatenation of these
 -- results. This could end up being a deceptively big job.
 
--- flatMap :: Vector n a -> (a -> Vector m b) -> Vector ??? b
-flatMap = error "Implement me!"
+flatMap :: Vector n a -> (a -> Vector m b) -> Vector (n ** m) b
+flatMap VNil _         = VNil
+flatMap (VCons x xs) f = appendVec (f x) (flatMap xs f)
 
 
 
