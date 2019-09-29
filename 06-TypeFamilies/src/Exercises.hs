@@ -190,15 +190,26 @@ type family CAppend (x :: Constraint) (y :: Constraint) :: Constraint where
 -- list of types, and builds a constraint on all the types.
 
 type family Every (c :: Type -> Constraint) (x :: [Type]) :: Constraint where
-  -- ...
+  Every f '[] = ()
+  Every f (x ': xs) = (f x, Every f xs)
 
 -- | b. Write a 'Show' instance for 'HList' that requires a 'Show' instance for
 -- every type in the list.
 
+instance Every Show xs => Show (HList xs) where
+  show HNil = ""
+  show (HCons x xs) = "(HCons (" ++ show x ++ ") " ++ show xs ++ ")"
+
 -- | c. Write an 'Eq' instance for 'HList'. Then, write an 'Ord' instance.
 -- Was this expected behaviour? Why did we need the constraints?
 
+instance Every Eq xs => Eq (HList xs) where
+  HNil == HNil = True
+  (HCons x xs) == (HCons y ys) = (x == y) && (xs == ys)
 
+instance (Every Eq xs, Every Ord xs) => Ord (HList xs) where
+  compare HNil HNil = EQ
+  compare (HCons x xs) (HCons y ys) = compare x y <> compare xs ys
 
 
 
