@@ -99,13 +99,26 @@ type family All (x :: [ Bool ]) :: Bool where
 -- | a. Nat fun! Write a type-level 'compare' function using the promoted
 -- 'Ordering' type.
 
+type family Compare (x :: Nat) (y :: Nat) :: Ordering where
+  Compare 'Z 'Z         = 'EQ
+  Compare 'Z _          = 'LT
+  Compare _ 'Z          = 'GT
+  Compare ('S x) ('S y) = Compare x y
+
 -- | b. Write a 'Max' family to get the maximum of two natural numbers.
+
+type family Max (x :: Nat) (y :: Nat) :: Nat where
+  Max x y         =  Max' (Compare x y) x y
+
+type family Max' (r :: Ordering) (x :: Nat) (y :: Nat) :: Nat where
+  Max' 'GT x _ = x
+  Max'  _  _ y = y
+
 
 -- | c. Write a family to get the maximum natural in a list.
 
-
-
-
+type family Maximum (x :: [ Nat ]) :: Nat where
+  Maximum (x ': xs) = Max x (Maximum xs)
 
 {- FIVE -}
 
