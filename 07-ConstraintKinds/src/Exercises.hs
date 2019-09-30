@@ -1,3 +1,4 @@
+{-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -34,13 +35,25 @@ data List a = Nil | Cons a (List a)
 -- constraints can the @Nil@ case satisfy?
 
 data ConstrainedList (c :: Type -> Constraint) where
-  -- IMPLEMENT ME
+  CLNil :: ConstrainedList c
+  CLCons :: c a => a -> ConstrainedList c -> ConstrainedList c
 
 -- | b. Using what we know about RankNTypes, write a function to fold a
 -- constrained list. Note that we'll need a folding function that works /for
 -- all/ types who implement some constraint @c@. Wink wink, nudge nudge.
 
--- foldConstrainedList :: ???
+-- foldConstrainedList :: c a => (forall a b. b -> a -> b) -> b -> ConstrainedList c -> b
+-- foldConstrainedList _ b CLNil = b
+-- foldConstrainedList f b (CLCons a as) = foldConstrainedList f (f b a) as
+
+foldConstrainedList
+  :: Monoid m
+  => (forall x. c x => x -> m)
+  -> ConstrainedList c
+  -> m
+
+foldConstrainedList f  CLNil        = mempty
+foldConstrainedList f (CLCons x xs) = f x <> foldConstrainedList f xs
 
 -- | Often, I'll want to constrain a list by /multiple/ things. The problem is
 -- that I can't directly write multiple constraints into my type, because the
@@ -54,8 +67,8 @@ data ConstrainedList (c :: Type -> Constraint) where
 -- combines `Monoid a` and `Show a`. What other extension did you need to
 -- enable? Why?
 
--- class ??? => Constraints a
--- instance ??? => Constraints a
+class (Monoid a, Show a) => Constraints a
+instance (Monoid a, Show a) => Constraints a
 
 -- | What can we now do with this constrained list that we couldn't before?
 -- There are two opportunities that should stand out!
