@@ -101,11 +101,29 @@ data HList (xs :: [Type]) where
 -- | a. Write this fold function. I won't give any hints to the definition, but
 -- we will probably need to call it like this:
 
--- test :: ??? => HList xs -> String
--- test = fold (TCProxy :: TCProxy Show) show
+type family Every (c :: Type -> Constraint) (x :: [Type]) :: Constraint where
+  Every c '[] = ()
+  Every c (x ': xs) = (c x, Every c xs)
+
+data TCProxy (x :: Type -> Constraint)
+  = TCProxy
+
+foldHList
+  :: (Monoid m, Every c xs)
+  => TCProxy c
+  -> (forall x. c x => x -> m)
+  -> HList xs
+  -> m
+foldHList _  _ HNil        = mempty
+foldHList tc f (HCons x xs) = f x <> foldHList tc f xs
+
+test :: Every Show xs => HList xs -> String
+test = foldHList (TCProxy :: TCProxy Show) show
 
 -- | b. Why do we need the proxy to point out which constraint we're working
 -- with?  What does GHC not like if we remove it?
+
+-- I don't think there is a way to provide a function with a fully polymorphic constraint otherwise
 
 -- | We typically define foldMap like this:
 
@@ -121,3 +139,13 @@ f :: a ~ b => a -> b
 f = id
 
 -- | Write @foldMap@ for @HList@!
+
+foldMapHList
+  :: (Monoid m, Every ((~) x) xs )
+  => (x -> m)
+  -> HList xs
+  -> m
+foldMapHList _  HNil        = mempty
+foldMapHList f (HCons x xs) = f x <> foldMapHList f xs
+
+-- wow..
