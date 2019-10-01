@@ -42,16 +42,20 @@ data ConstrainedList (c :: Type -> Constraint) where
 -- constrained list. Note that we'll need a folding function that works /for
 -- all/ types who implement some constraint @c@. Wink wink, nudge nudge.
 
--- foldConstrainedList :: c a => (forall a b. b -> a -> b) -> b -> ConstrainedList c -> b
--- foldConstrainedList _ b CLNil = b
--- foldConstrainedList f b (CLCons a as) = foldConstrainedList f (f b a) as
+foldLConstrainedList :: (forall a. c a => b -> a -> b) -> b -> ConstrainedList c -> b
+foldLConstrainedList _ b CLNil = b
+foldLConstrainedList f b (CLCons a as) = foldLConstrainedList f (f b a) as
+
+blah :: String
+blah = foldLConstrainedList (\b a -> show a ++ b) "" (CLCons "a" CLNil :: ConstrainedList Show)
+
+-- in needs the type annotation to know what constraint to use
 
 foldConstrainedList
   :: Monoid m
   => (forall x. c x => x -> m)
   -> ConstrainedList c
   -> m
-
 foldConstrainedList f  CLNil        = mempty
 foldConstrainedList f (CLCons x xs) = f x <> foldConstrainedList f xs
 
