@@ -74,6 +74,9 @@ foldConstrainedList f (CLCons x xs) = f x <> foldConstrainedList f xs
 class (Monoid a, Show a) => Constraints a
 instance (Monoid a, Show a) => Constraints a
 
+halp :: ConstrainedList Constraints
+halp = CLCons "a" CLNil
+
 -- | What can we now do with this constrained list that we couldn't before?
 -- There are two opportunities that should stand out!
 
