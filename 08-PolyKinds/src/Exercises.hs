@@ -23,11 +23,30 @@ type family All (c :: Type -> Constraint) (xs :: [Type]) :: Constraint where
 -- | a. Why does it have to be restricted to 'Type'? Can you make this more
 -- general?
 
+type family All' (c :: a -> b) (xs :: [a]) :: b where
+  All' c '[] = ()
+  All' c (x ': xs) = (c x, All c xs)
+
 -- | b. Why does it have to be restricted to 'Constraint'? Can you make this
 -- more general? Why is this harder?
 
+-- Because constraints are separate from types and kinds.. i think. They live
+-- separately, so we must be explicit about the difference
 
+-- actual answer:
 
+-- Not really - we need some polymorphic way of "combining" things, probably
+-- passed in as another parameter. Because type families can't be
+-- partially-applied, this is actually really tricky to do in the general case
+-- (at the moment).
+
+-- hmm not sure if I get this
+-- making it polymorphic does compile
+
+data Omg (a :: [k]) = Omg
+
+blah :: All' Show xs => Omg xs -> String
+blah = const "asdf"
 
 
 {- TWO -}
