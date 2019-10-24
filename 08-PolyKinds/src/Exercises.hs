@@ -23,7 +23,7 @@ type family All (c :: Type -> Constraint) (xs :: [Type]) :: Constraint where
 -- | a. Why does it have to be restricted to 'Type'? Can you make this more
 -- general?
 
-type family All' (c :: a -> b) (xs :: [a]) :: b where
+type family All' (c :: a -> Constraint) (xs :: [a]) :: Constraint where
   All' c '[] = ()
   All' c (x ': xs) = (c x, All c xs)
 
@@ -43,10 +43,19 @@ type family All' (c :: a -> b) (xs :: [a]) :: b where
 -- hmm not sure if I get this
 -- making it polymorphic does compile
 
+-- playing more
+
+-- Ok I think I get it. Constraint tuples have the property of being flattened,
+-- but Type tuples do it. Thus the behavior is different and we have no generalised
+-- between the two
+
 data Omg (a :: [k]) = Omg
 
 blah :: All' Show xs => Omg xs -> String
 blah = const "asdf"
+
+blah2 :: String
+blah2 = blah (Omg :: Omg '[Int])
 
 
 {- TWO -}
