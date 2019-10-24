@@ -113,13 +113,34 @@ data a :=: b where
 
 -- | a. What do you think the kind of (:=:) is?
 
+-- Type -> Type -> Type
+
 -- | b. Does @PolyKinds@ make a difference to this kind?
+
+-- Seems no? We don't specify a kind, so they should all just be Type
 
 -- | c. Regardless of your answer to part (b), is this the most general kind we
 -- could possibly give this constructor? If not (hint: it's not), what more
 -- general kind could we give it, and how would we tell this to GHC?
 
+data (a :: k) :==: (b :: k') where
+  Refl' :: a :==: a
 
+wah :: String :=: [Char]
+wah = Refl
+
+-- wah2 :: String :=: Int
+-- wah2 = Refl :: String :=: String
+
+-- My intuition is that because Refl references itself in its type
+-- data a :=: b AND Refl :: a :=: a, for this to work it needs to be able to unify a and b
+-- ie. a ~ b
+
+wah3 :: String :==: [Char]
+wah3 = Refl'
+
+-- wah4 :: String :==: 'True
+-- wah4 = Refl'
 
 
 
