@@ -166,7 +166,9 @@ data SBool (b :: Bool) where
   STrue  :: SBool 'True
   SFalse :: SBool 'False
 
--- type instance Sing ...
+type instance Sing x = SBool x
+
+-- this works because SBool x, the x is of kind Bool, so we are creating an instance for Sing x :: Bool
 
 -- | b. Repeat the process for the @Nat@ kind. Again, if you're on the right
 -- lines, this is very nearly a copy-paste job!
@@ -177,7 +179,7 @@ data SNat (n :: Nat) where
   SZ :: SNat 'Z
   SS :: SNat n -> SNat ('S n)
 
-
+type instance Sing x = SNat x
 
 
 
