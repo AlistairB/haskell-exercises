@@ -222,6 +222,24 @@ data Sigma (f :: Nat -> Type) where
 data Sigma' (f :: k -> Type) where
   Sigma' :: SNat n -> f n -> Sigma' f
 
+-- I don't really understand why it is happy with k <> n
+-- Are we really making it polymorphic if we know SNat takes a Nat n
+-- and our function takes an n?
+
+data Cools (a :: Bool) where
+  NotCool :: Cools 'False
+  VeryCool :: Cools 'True
+
+-- example3 :: [Sigma' Cools]
+-- example3
+--   = [ Sigma' SZ NotCool
+--     , Sigma' (SS SZ) VeryCool
+--     ]
+
+-- yeah so I think you can create the Type which isn't bound to Nat
+-- but it is an uninhabited type, because the data constructor binds
+-- the argument to Nat
+
 example2 :: [Sigma' Strings]
 example2
   = [ Sigma'         SZ   SNil
@@ -236,9 +254,17 @@ data Vector (a :: Type) (n :: Nat) where -- @n@ and @a@ flipped... Hmm, a clue!
   VNil  ::                    Vector a  'Z
   VCons :: a -> Vector a n -> Vector a ('S n)
 
+filterV :: (a -> Bool) -> Vector a n -> Sigma' (Vector a)
+filterV p  VNil        = Sigma' SZ VNil
+filterV p (VCons x xs)
+  | p x       = cons x (filterV p xs)
+  | otherwise = filterV p xs
+  where
+    cons :: a -> Sigma' (Vector a) -> Sigma' (Vector a)
+    cons x (Sigma' n xs) = Sigma' (SS n) (VCons x xs)
 
 
-
+-- struggled with this, mostly cheated..
 
 
 {- SIX -}
