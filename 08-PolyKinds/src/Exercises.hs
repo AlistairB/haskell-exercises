@@ -212,7 +212,7 @@ example
 -- compiler should do a lot of the work for you...
 
 data Sigma (f :: Nat -> Type) where
-  Sigma :: SNat n -> f n -> Sigma f
+  Sigma :: Sing n -> f n -> Sigma f
 
 -- | b. Surely, by now, you've guessed this question? Why are we restricting
 -- ourselves to 'Nat'? Don't we have some more general way to talk about
@@ -220,7 +220,7 @@ data Sigma (f :: Nat -> Type) where
 -- singletons? Sing it with me! Generalise that type!
 
 data Sigma' (f :: k -> Type) where
-  Sigma' :: SNat n -> f n -> Sigma' f
+  Sigma' :: Sing n -> f n -> Sigma' f
 
 -- I don't really understand why it is happy with k <> n
 -- Are we really making it polymorphic if we know SNat takes a Nat n
@@ -235,6 +235,8 @@ data Cools (a :: Bool) where
 --   = [ Sigma' SZ NotCool
 --     , Sigma' (SS SZ) VeryCool
 --     ]
+
+-- ok I stuffed up, Sing n, not SNat. Now I get what Sing is doing
 
 -- yeah so I think you can create the Type which isn't bound to Nat
 -- but it is an uninhabited type, because the data constructor binds
@@ -293,17 +295,32 @@ data ServerData
 -- server data.
 
 data Communication (label :: Label) where
-  -- {{Fill this space with your academic excellence}}
+  CClientData :: ClientData -> Communication 'Client
+  CServerData :: ServerData -> Communication 'Server
 
 -- | b. Write a singleton for 'Label'.
+
+data SLabel (label :: Label) where
+  SClient :: SLabel 'Client
+  SServer :: SLabel 'Server
+
+type instance Sing x = SLabel x
 
 -- | c. Magically, we can now group together blocks of data with differing
 -- labels using @Sigma Communication@, and then pattern-match on the 'Sigma'
 -- constructor to find out which packet we have! Try it:
 
--- serverLog :: [Sigma Communication] -> [ServerData]
--- serverLog = error "YOU CAN DO IT"
+-- data Sigma' (f :: k -> Type) where
+--   Sigma' :: SNat n -> f n -> Sigma' f
+
+serverLog :: [Sigma' Communication] -> [ServerData]
+serverLog [] = []
+serverLog ((Sigma' SServer (CServerData sd)):xs) = sd : serverLog xs
+serverLog ((Sigma' SClient _):xs) = serverLog xs
 
 -- | d. Arguably, in this case, the Sigma type is overkill; what could we have
 -- done, perhaps using methods from previous chapters, to "hide" the label
 -- until we pattern-matched?
+
+-- I don't really get this. I understand sigma doesn't give us much, because we can just pattern
+-- match on the GADT data constructor.. but the answer doesn't make much sense to me. Oh well :)
