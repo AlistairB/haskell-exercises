@@ -10,6 +10,7 @@
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
 module Exercises where
 
 import Data.Kind (Constraint, Type)
@@ -51,8 +52,8 @@ instance Newtype YourInt Int where
 -- | c. Write a function that adds together two values of the same type,
 -- providing that the type is a newtype around some type with a 'Num' instance.
 
-addWrapped :: (Num a, Newtype x a) => x -> x -> x
-addWrapped = undefined
+addWrapped :: (Num a, Newtype x a) => x -> x -> a
+addWrapped a b = (unwrap a) + (unwrap b)
 
 -- | d. We actually don't need @MultiParamTypeClasses@ for this if we use
 -- @TypeFamilies@. Look at the section on associated type instances here:
