@@ -96,7 +96,7 @@ tested = print (transform True)
   probably isn't a particularly helpful extension given only what we've seen so
   far. It certainly doesn't get us any closer to being able to /use/ the @help@
   function! What we /need/ is a way of saying:
-  
+
   /Each @a@ has a unique @b@ value. If you know @a@, there will be /at most
   one/ instance of the class in scope, and that will tell you what @b@ is./
 

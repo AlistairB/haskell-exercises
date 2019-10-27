@@ -23,15 +23,18 @@ import qualified GHC.Generics as G
 
 -- | Recall an old friend, the 'Newtype' class:
 
-class Newtype (new :: Type) (old :: Type) where
+class Newtype (new :: Type) (old :: Type) | old -> new where
   wrap   :: old -> new
   unwrap :: new -> old
 
 -- | a. Can we add a functional dependency to this class?
 
+-- yep
+
 -- | b. Why can't we add two?
 
-
+-- I think because we only have 2 type variables, which can only go one way
+-- .. although it does compile fine `old -> new, new -> old`
 
 
 
@@ -40,21 +43,26 @@ class Newtype (new :: Type) (old :: Type) where
 -- | Let's go back to a problem we had in the last exercise, and imagine a very
 -- simple cache in IO. Uncomment the following:
 
--- class CanCache (entity :: Type) (index :: Type) where
---   store :: entity -> IO ()
---   load  :: index -> IO (Maybe entity)
+class CanCache (entity :: Type) (index :: Type) | entity -> index where
+  store :: Functor f => entity -> f ()
+  load  :: Functor f => index -> f (Maybe entity)
 
 -- | a. Uh oh - there's already a problem! Any @entity@ type should have a
 -- fixed type of id/@index@, though... if only we could convince GHC... Could
 -- you have a go?
 
+-- seems good
+
 -- | b. @IO@ is fine, but it would be nice if we could choose the functor when
 -- we call @store@ or @load@... can we parameterise it in some way?
+
+-- blam
 
 -- | c. Is there any sort of functional dependency that relates our
 -- parameterised functor to @entity@ or @index@? If so, how? If not, why not?
 
-
+-- No, nothing in our typeclass cares in any way what the actual Functor is
+-- So it shouldn't factor into the functional dependencies in any way
 
 
 
@@ -82,7 +90,7 @@ type family Add' (x :: Nat) (y :: Nat)    :: Nat
 
 -- | b. By our analogy, a type family has only "one functional dependency" -
 -- all its inputs to its one output. Can we write _more_ functional
--- dependencies for @Add@? Aside from @x y -> z@? 
+-- dependencies for @Add@? Aside from @x y -> z@?
 
 -- | c. We know with addition, @x + y = z@ implies @y + x = z@ and @z - x = y@.
 -- This should mean that any pair of these three variables should determine the
@@ -256,11 +264,11 @@ instance GNameOf (G.D1 ('G.MetaData name a b c) d) name
 --
 -- liftA1 :: Applicative f => (a -> b) -> f a -> f b
 -- liftA1 = lift
--- 
+--
 -- liftA2 :: Applicative f => (a -> b -> c) -> f a -> f b -> f c
 -- liftA2 = lift
 --
--- 
+--
 -- liftA3 :: Applicative f => (a -> b -> c -> d) -> f a -> f b -> f c -> f d
 -- liftA3 = lift
 
